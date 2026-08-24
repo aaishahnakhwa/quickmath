@@ -1,0 +1,560 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ivory: #FAF9F6;
+  --color-ivory-dark: #F3F1EC;
+  --color-charcoal: #1C1A17;
+  --color-charcoal-light: #2D2A26;
+  --color-electric: #2563EB;
+  --color-electric-hover: #1D4ED8;
+  --color-lime: #84CC16;
+  --color-lime-hover: #65A30D;
+  --color-coral: #EF4444;
+  --color-coral-hover: #DC2626;
+  --color-rewards-yellow: #EAB308;
+  --color-pro-purple: #7C3AED;
+  --color-pro-purple-hover: #6D28D9;
+  
+  --font-sans: 'Space Grotesk', 'Sora', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-display: 'Sora', 'Space Grotesk', sans-serif;
+}
+
+/* Base styling overrides */
+@layer base {
+  body {
+    @apply bg-ivory text-charcoal font-sans antialiased selection:bg-electric selection:text-white overflow-x-hidden;
+  }
+}
+
+/* Retro-maximalist grid background */
+.grid-bg {
+  background-size: 30px 30px;
+  background-image: 
+    linear-gradient(to right, rgba(28, 26, 23, 0.05) 1.5px, transparent 1.5px),
+    linear-gradient(to bottom, rgba(28, 26, 23, 0.05) 1.5px, transparent 1.5px);
+  position: relative;
+}
+
+/* Diagonal Warning Stripes */
+.bg-stripes-yellow {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--color-rewards-yellow),
+    var(--color-rewards-yellow) 12px,
+    var(--color-charcoal) 12px,
+    var(--color-charcoal) 24px
+  );
+}
+
+.bg-stripes-coral {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--color-coral),
+    var(--color-coral) 12px,
+    var(--color-charcoal) 12px,
+    var(--color-charcoal) 24px
+  );
+}
+
+.bg-stripes-light {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 8px,
+    rgba(28, 26, 23, 0.04) 8px,
+    rgba(28, 26, 23, 0.04) 16px
+  );
+}
+
+/* Glass Reflection Highlight */
+.glass-reflection {
+  position: relative;
+  overflow: hidden;
+}
+.glass-reflection::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.28) 0%,
+    rgba(255, 255, 255, 0.12) 35%,
+    transparent 35.1%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* Technical blueprint lines */
+.blueprint-line-h {
+  @apply border-t-2 border-charcoal/10 relative;
+}
+.blueprint-line-h::before, .blueprint-line-h::after {
+  content: '+';
+  @apply absolute top-1/2 -translate-y-1/2 font-mono text-xs text-charcoal/30 select-none;
+}
+.blueprint-line-h::before { left: 0; }
+.blueprint-line-h::after { right: 0; }
+
+/* Brutalist Chunky Panel Card */
+.chunky-card {
+  @apply border-[3px] border-charcoal relative transition-all duration-100;
+  box-shadow: 6px 6px 0px 0px #1C1A17;
+}
+
+/* Satisfying Chunky Tactical Button */
+.btn-chunky {
+  @apply border-[3px] border-charcoal font-display font-black text-xs uppercase tracking-wider transition-all duration-100 select-none cursor-pointer;
+  box-shadow: 4px 4px 0px 0px #1C1A17;
+}
+
+.btn-chunky:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px #1C1A17;
+}
+
+.btn-chunky:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0px 0px #1C1A17;
+}
+
+.btn-chunky:disabled {
+  @apply opacity-40 cursor-not-allowed bg-neutral-100 text-neutral-400;
+  box-shadow: 1px 1px 0px 0px #1C1A17;
+  transform: translate(3px, 3px);
+}
+
+/* Chunky Mechanical Keyboard Keycaps */
+.mechanical-key {
+  @apply border-[3px] border-charcoal rounded-lg text-lg font-black font-mono select-none cursor-pointer transition-all duration-75 relative flex items-center justify-center;
+  box-shadow: 0px 5px 0px 0px #1C1A17;
+  height: 52px;
+}
+
+.mechanical-key:hover:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0px 4px 0px 0px #1C1A17;
+}
+
+.mechanical-key:active:not(:disabled) {
+  transform: translateY(5px);
+  box-shadow: 0px 0px 0px 0px #1C1A17;
+}
+
+.mechanical-key:disabled {
+  @apply opacity-40 cursor-not-allowed bg-neutral-100;
+  transform: translateY(3px);
+  box-shadow: 0px 2px 0px 0px #1C1A17;
+}
+
+/* LED Indicators with fixed size to prevent flex stretching */
+.led {
+  @apply w-2.5 h-2.5 rounded-full border-2 border-charcoal inline-block shrink-0 transition-all duration-150;
+}
+.led-active-green {
+  @apply bg-lime;
+  box-shadow: 0 0 8px #84CC16;
+}
+.led-active-blue {
+  @apply bg-electric;
+  box-shadow: 0 0 8px #2563EB;
+}
+.led-active-purple {
+  @apply bg-pro-purple;
+  box-shadow: 0 0 8px #7C3AED;
+}
+.led-off {
+  @apply bg-neutral-200;
+}
+
+/* Hardware Neon Glow Drop Shadows (Card backlights) */
+.shadow-glow-blue {
+  box-shadow: 6px 6px 0px 0px var(--color-charcoal), 0 0 15px var(--color-electric);
+}
+.shadow-glow-green {
+  box-shadow: 6px 6px 0px 0px var(--color-charcoal), 0 0 15px var(--color-lime);
+}
+.shadow-glow-purple {
+  box-shadow: 6px 6px 0px 0px var(--color-charcoal), 0 0 15px var(--color-pro-purple);
+}
+.shadow-glow-coral {
+  box-shadow: 6px 6px 0px 0px var(--color-charcoal), 0 0 15px var(--color-coral);
+}
+.shadow-glow-yellow {
+  box-shadow: 6px 6px 0px 0px var(--color-charcoal), 0 0 15px var(--color-rewards-yellow);
+}
+
+/* Double layered shadows for maximalist panels */
+.shadow-maximal-blue {
+  box-shadow: 4px 4px 0px 0px var(--color-electric), 8px 8px 0px 0px var(--color-charcoal);
+}
+.shadow-maximal-purple {
+  box-shadow: 4px 4px 0px 0px var(--color-pro-purple), 8px 8px 0px 0px var(--color-charcoal);
+}
+.shadow-maximal-green {
+  box-shadow: 4px 4px 0px 0px var(--color-lime), 8px 8px 0px 0px var(--color-charcoal);
+}
+.shadow-maximal-coral {
+  box-shadow: 4px 4px 0px 0px var(--color-coral), 8px 8px 0px 0px var(--color-charcoal);
+}
+.shadow-maximal-yellow {
+  box-shadow: 4px 4px 0px 0px var(--color-rewards-yellow), 8px 8px 0px 0px var(--color-charcoal);
+}
+
+/* Neon Text Glows */
+.glow-text-blue {
+  filter: drop-shadow(0 0 4px var(--color-electric));
+}
+.glow-text-green {
+  filter: drop-shadow(0 0 4px var(--color-lime));
+}
+.glow-text-purple {
+  filter: drop-shadow(0 0 4px var(--color-pro-purple));
+}
+.glow-text-coral {
+  filter: drop-shadow(0 0 4px var(--color-coral));
+}
+.glow-text-yellow {
+  filter: drop-shadow(0 0 4px var(--color-rewards-yellow));
+}
+
+/* Text alignment guides */
+.technical-label {
+  @apply font-mono text-[9px] font-extrabold tracking-widest text-neutral-400 uppercase leading-none;
+}
+
+/* Key indicators */
+.key-hint {
+  @apply border border-charcoal/30 bg-neutral-100 rounded text-[9px] px-1 py-[1px] text-neutral-400 font-mono select-none shadow-[0.5px_1px_0px_0px_rgba(28,26,23,0.3)];
+}
+
+/* Retro System Stamps */
+.system-stamp {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  transform: rotate(-6deg);
+  border: 3px solid currentColor;
+  padding: 4px 10px;
+  font-size: 10px;
+  display: inline-block;
+  opacity: 0.85;
+}
+
+/* Technical blueprint corner marks */
+.corner-ticks::before, .corner-ticks::after {
+  content: '+';
+  @apply absolute font-mono text-[10px] text-charcoal/40 select-none;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF9F6;
+  border-left: 3px solid #1C1A17;
+}
+::-webkit-scrollbar-thumb {
+  background: #1C1A17;
+  border: 3px solid #FAF9F6;
+}
+
+/* Wiggle micro-animations (disabled globally for stable click targeting) */
+
+/* Active Skins Faceplates Overrides */
+.theme-danger {
+  --color-ivory: #FFFDF7;
+  --color-ivory-dark: #FFFBE6;
+  --color-electric: #EF4444; /* hazard red interaction */
+  --color-electric-hover: #DC2626;
+  --color-lime: #F59E0B; /* amber success */
+  --color-lime-hover: #D97706;
+  --color-coral: #EF4444;
+}
+
+.theme-gameboy {
+  --color-ivory: #C3CFC0; /* retro sage green GameBoy casing */
+  --color-ivory-dark: #B2BFB0;
+  --color-charcoal: #2D3D2B; /* pixel gray-green ink */
+  --color-charcoal-light: #3D4D3A;
+  --color-electric: #223521;
+  --color-electric-hover: #142213;
+  --color-lime: #4E634C;
+  --color-lime-hover: #3C4D3A;
+  --color-coral: #8F341C;
+  --color-rewards-yellow: #5B7059;
+  --color-pro-purple: #3A4C38;
+}
+
+.theme-synthwave {
+  --color-ivory: #FFF5F8; /* neon lavender base */
+  --color-ivory-dark: #FFE5EE;
+  --color-electric: #EC4899; /* hot pink interactive neon */
+  --color-electric-hover: #D946EF; /* neon purple fuchsia */
+  --color-lime: #00F5D4; /* synth turquoise */
+  --color-lime-hover: #00BBF9;
+  --color-pro-purple: #7209B7;
+  --color-rewards-yellow: #F15BB5;
+}
+
+
+
+/* Speedometer Dial needle shaking in redline */
+@keyframes needle-vibrate {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-2deg); }
+  75% { transform: rotate(2deg); }
+}
+.needle-shake {
+  animation: needle-vibrate 0.06s ease infinite;
+}
+
+.dark {
+  --color-ivory: #0d0c0b;       /* slightly softer black background to reduce high-contrast glare */
+  --color-ivory-dark: #000000;
+  --color-charcoal: #FAF9F6;    /* off-white text and border lines */
+  --color-charcoal-light: #EAE8E2;
+  
+  /* NEON ARCADE COCKPIT OVERRIDES (Default Classic Blue theme in dark mode) */
+  --color-electric: #00C8DF;          /* softer cyan */
+  --color-electric-hover: #0096C7;
+  --color-electric-glow: rgba(0, 200, 223, 0.4);
+  --color-lime: #22C55E;              /* standard green */
+  --color-lime-hover: #16A34A;
+  --color-lime-glow: rgba(34, 197, 94, 0.3);
+  --color-pro-purple: #B500E5;        /* softer purple */
+  --color-pro-purple-hover: #9333EA;
+  --color-pro-purple-glow: rgba(181, 0, 229, 0.3);
+  --color-coral: #EF4444;             /* standard coral */
+  --color-coral-glow: rgba(239, 68, 68, 0.3);
+  --color-rewards-yellow: #EAB308;    /* standard yellow */
+  --color-rewards-yellow-glow: rgba(234, 179, 8, 0.3);
+}
+
+/* Danger skin in Dark Mode */
+.dark.theme-danger, .theme-danger.dark {
+  --color-electric: #FF3131;          /* neon hazard red */
+  --color-electric-hover: #DC2626;
+  --color-electric-glow: rgba(255, 49, 49, 0.4);
+  --color-lime: #FFEA00;              /* neon yellow success */
+  --color-lime-hover: #EAB308;
+  --color-lime-glow: rgba(255, 234, 0, 0.3);
+}
+
+/* GameBoy skin in Dark Mode */
+.dark.theme-gameboy, .theme-gameboy.dark {
+  --color-ivory: #1A2218;             /* very dark Gameboy screen green */
+  --color-ivory-dark: #10160F;
+  --color-charcoal: #C3CFC0;          /* sage green text */
+  --color-charcoal-light: #AAB7A7;
+  --color-electric: #789973;          /* sage green neon */
+  --color-electric-hover: #5B7A56;
+  --color-electric-glow: rgba(120, 153, 115, 0.4);
+  --color-lime: #88A683;
+  --color-lime-hover: #6F8B6B;
+  --color-lime-glow: rgba(136, 166, 131, 0.3);
+  --color-pro-purple: #88A683;
+  --color-pro-purple-glow: rgba(136, 166, 131, 0.3);
+  --color-rewards-yellow: #88A683;
+  --color-rewards-yellow-glow: rgba(136, 166, 131, 0.3);
+  --color-coral: #A85A48;
+  --color-coral-glow: rgba(168, 90, 72, 0.3);
+}
+
+/* Synthwave skin in Dark Mode */
+.dark.theme-synthwave, .theme-synthwave.dark {
+  --color-electric: #FF007F;          /* hot neon pink */
+  --color-electric-hover: #D946EF;
+  --color-electric-glow: rgba(255, 0, 127, 0.4);
+  --color-lime: #00F5D4;              /* neon turquoise */
+  --color-lime-hover: #00BBF9;
+  --color-lime-glow: rgba(0, 245, 212, 0.3);
+  --color-pro-purple: #BD00FF;
+  --color-pro-purple-glow: rgba(189, 0, 255, 0.3);
+  --color-rewards-yellow: #FF007F;
+  --color-rewards-yellow-glow: rgba(255, 0, 127, 0.3);
+}
+
+.dark {
+  /* Make card components dark background with soft muted borders and brutalist shadows */
+  .chunky-card, .border-neutral-50, .bg-white, .blueprint-line-h {
+    background-color: #000000 !important;
+    color: #FAF9F6;
+    border-width: 2.5px !important;
+    border-color: #525252 !important; /* muted border grey instead of blinding white */
+    box-shadow: 6px 6px 0px 0px #FAF9F6 !important; /* brutalist card shadow */
+    transition: all 0.2s ease;
+  }
+  
+  .bg-neutral-50, .bg-neutral-100 {
+    background-color: #121110 !important;
+    color: #FAF9F6;
+  }
+
+  /* Style all chunky button actions and keyboard keycaps as flat buttons with soft borders and shadows */
+  .btn-chunky, .mechanical-key {
+    border-width: 2px !important;
+    border-color: #525252 !important; /* muted border grey */
+    color: #FAF9F6 !important;        /* bright text matching shadow */
+    background-color: #000000 !important;
+    transition: all 0.15s ease;
+  }
+  
+  .btn-chunky {
+    box-shadow: 4px 4px 0px 0px #FAF9F6 !important; /* brutalist button shadow */
+  }
+  
+  .mechanical-key {
+    box-shadow: 0px 5px 0px 0px #FAF9F6 !important; /* brutalist keycap shadow */
+  }
+  
+  /* Disable glass reflections inside dark mode */
+  .glass-reflection::after {
+    display: none !important;
+  }
+  
+  /* hover transforms: show a very soft white border and matching offset shadows */
+  .btn-chunky:hover:not(:disabled) {
+    transform: translate(-2px, -2px) !important;
+    border-color: #A3A3A3 !important;
+    color: #FAF9F6 !important;
+    box-shadow: 6px 6px 0px 0px #FAF9F6 !important;
+  }
+  
+  .mechanical-key:hover:not(:disabled) {
+    transform: translateY(1px) !important;
+    border-color: #A3A3A3 !important;
+    color: #FAF9F6 !important;
+    box-shadow: 0px 4px 0px 0px #FAF9F6 !important;
+  }
+  
+  /* active transforms: soft glowing click feedback with minimal shadows */
+  .btn-chunky:active:not(:disabled) {
+    transform: translate(3px, 3px) !important;
+    border-color: var(--color-electric) !important;
+    color: var(--color-electric) !important;
+    box-shadow: 1px 1px 0px 0px #FAF9F6, 0 0 6px var(--color-electric-glow) !important;
+  }
+  
+  .mechanical-key:active:not(:disabled) {
+    transform: translateY(5px) !important;
+    border-color: var(--color-electric) !important;
+    color: var(--color-electric) !important;
+    box-shadow: 0px 0px 0px 0px #FAF9F6, 0 0 6px var(--color-electric-glow) !important;
+  }
+
+  /* Make icons and LEDs have a very soft glow */
+  .led {
+    box-shadow: 0 0 6px currentColor;
+  }
+
+  svg {
+    filter: drop-shadow(0 0 2px currentColor);
+  }
+  
+  /* Map each specific maximal shadow to soft neon borders */
+  .shadow-maximal-blue, .chunky-card.shadow-maximal-blue {
+    border-color: var(--color-electric) !important;
+    box-shadow: 4px 4px 0px 0px var(--color-electric), 8px 8px 0px 0px #FAF9F6 !important;
+  }
+  .shadow-maximal-purple, .chunky-card.shadow-maximal-purple {
+    border-color: var(--color-pro-purple) !important;
+    box-shadow: 4px 4px 0px 0px var(--color-pro-purple), 8px 8px 0px 0px #FAF9F6 !important;
+  }
+  .shadow-maximal-green, .chunky-card.shadow-maximal-green {
+    border-color: var(--color-lime) !important;
+    box-shadow: 4px 4px 0px 0px var(--color-lime), 8px 8px 0px 0px #FAF9F6 !important;
+  }
+  .shadow-maximal-coral, .chunky-card.shadow-maximal-coral {
+    border-color: var(--color-coral) !important;
+    box-shadow: 4px 4px 0px 0px var(--color-coral), 8px 8px 0px 0px #FAF9F6 !important;
+  }
+  .shadow-maximal-yellow, .chunky-card.shadow-maximal-yellow {
+    border-color: var(--color-rewards-yellow) !important;
+    box-shadow: 4px 4px 0px 0px var(--color-rewards-yellow), 8px 8px 0px 0px #FAF9F6 !important;
+  }
+
+  /* Map buttons backgrounds classes to soft neon outline states when selected */
+  .btn-chunky.bg-electric {
+    border-color: var(--color-electric) !important;
+    color: var(--color-electric) !important;
+    box-shadow: 4px 4px 0px 0px #FAF9F6, 0 0 6px var(--color-electric-glow) !important;
+  }
+  .btn-chunky.bg-electric:hover:not(:disabled) {
+    box-shadow: 6px 6px 0px 0px #FAF9F6, 0 0 10px var(--color-electric-glow) !important;
+  }
+  
+  .btn-chunky.bg-lime {
+    border-color: var(--color-lime) !important;
+    color: var(--color-lime) !important;
+    box-shadow: 4px 4px 0px 0px #FAF9F6, 0 0 6px var(--color-lime-glow) !important;
+  }
+  .btn-chunky.bg-lime:hover:not(:disabled) {
+    box-shadow: 6px 6px 0px 0px #FAF9F6, 0 0 10px var(--color-lime-glow) !important;
+  }
+
+  .btn-chunky.bg-pro-purple {
+    border-color: var(--color-pro-purple) !important;
+    color: var(--color-pro-purple) !important;
+    box-shadow: 4px 4px 0px 0px #FAF9F6, 0 0 6px var(--color-pro-purple-glow) !important;
+  }
+  .btn-chunky.bg-pro-purple:hover:not(:disabled) {
+    box-shadow: 6px 6px 0px 0px #FAF9F6, 0 0 10px var(--color-pro-purple-glow) !important;
+  }
+
+  .btn-chunky.bg-coral {
+    border-color: var(--color-coral) !important;
+    color: var(--color-coral) !important;
+    box-shadow: 4px 4px 0px 0px #FAF9F6, 0 0 6px var(--color-coral-glow) !important;
+  }
+  .btn-chunky.bg-coral:hover:not(:disabled) {
+    box-shadow: 6px 6px 0px 0px #FAF9F6, 0 0 10px var(--color-coral-glow) !important;
+  }
+
+  .btn-chunky.bg-rewards-yellow {
+    border-color: var(--color-rewards-yellow) !important;
+    color: var(--color-rewards-yellow) !important;
+    box-shadow: 4px 4px 0px 0px #FAF9F6, 0 0 6px var(--color-rewards-yellow-glow) !important;
+  }
+  .btn-chunky.bg-rewards-yellow:hover:not(:disabled) {
+    box-shadow: 6px 6px 0px 0px #FAF9F6, 0 0 10px var(--color-rewards-yellow-glow) !important;
+  }
+
+  /* Default button style (when idle and not selected) */
+  .btn-chunky:not(.bg-electric):not(.bg-lime):not(.bg-pro-purple):not(.bg-coral):not(.bg-rewards-yellow), .mechanical-key {
+    border-color: #525252 !important;
+    color: #FAF9F6 !important;
+  }
+  .btn-chunky:not(.bg-electric):not(.bg-lime):not(.bg-pro-purple):not(.bg-coral):not(.bg-rewards-yellow) {
+    box-shadow: 4px 4px 0px 0px #FAF9F6 !important;
+  }
+  .mechanical-key {
+    box-shadow: 0px 5px 0px 0px #FAF9F6 !important;
+  }
+  .btn-chunky:not(.bg-electric):not(.bg-lime):not(.bg-pro-purple):not(.bg-coral):not(.bg-rewards-yellow):hover:not(:disabled) {
+    border-color: #A3A3A3 !important;
+    color: #FAF9F6 !important;
+    box-shadow: 6px 6px 0px 0px #FAF9F6 !important;
+  }
+  .mechanical-key:hover:not(:disabled) {
+    border-color: #A3A3A3 !important;
+    color: #FAF9F6 !important;
+    box-shadow: 0px 4px 0px 0px #FAF9F6 !important;
+  }
+  .btn-chunky:not(.bg-electric):not(.bg-lime):not(.bg-pro-purple):not(.bg-coral):not(.bg-rewards-yellow):active:not(:disabled) {
+    border-color: var(--color-electric) !important;
+    color: var(--color-electric) !important;
+    box-shadow: 1px 1px 0px 0px #FAF9F6, 0 0 6px var(--color-electric-glow) !important;
+  }
+  .mechanical-key:active:not(:disabled) {
+    border-color: var(--color-electric) !important;
+    color: var(--color-electric) !important;
+    box-shadow: 0px 0px 0px 0px #FAF9F6, 0 0 6px var(--color-electric-glow) !important;
+  }
+}
