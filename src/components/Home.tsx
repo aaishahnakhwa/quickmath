@@ -1,8 +1,18 @@
 import React, { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { getRankStyles, getHumorousTitle } from '../engine/progression';
-import { Play, Flame, CheckCircle, Clock, LogIn, ChevronRight } from 'lucide-react';
 import { playClick } from '../services/audioService';
+import { 
+  Flame, 
+  Clock, 
+  CheckCircle, 
+  ChevronRight, 
+  LogIn,
+  Gamepad2,
+  Calendar,
+  Layers,
+  HelpCircle
+} from 'lucide-react';
 
 interface HomeProps {
   onStartGame: (config: {
@@ -11,43 +21,60 @@ interface HomeProps {
     mode: 'CLASSIC' | 'TIME_ATTACK' | 'STREAK' | 'BLITZ' | 'DAILY_CHALLENGE' | 'PUZZLE';
     questionLimit: number;
   }) => void;
-  setScreen: (screen: 'home' | 'play' | 'results' | 'profile' | 'leaderboard') => void;
+  setScreen: (screen: 'home' | 'play' | 'results' | 'profile' | 'leaderboard' | 'how-to-play') => void;
 }
 
 export const Home: React.FC<HomeProps> = ({ onStartGame, setScreen }) => {
-  const { 
-    profile, 
-    levelInfo, 
-    isAuthenticated, 
-    registerUser, 
-    hasPlayedDailyToday,
-    hasStartedDailyToday,
-    startDailyChallenge 
-  } = useGame();
-  
-  // Game Setup State
-  const [selectedDifficulty, setSelectedDifficulty] = useState<'BASIC' | 'STANDARD' | 'PRO'>('STANDARD');
+  const { profile, levelInfo, hasPlayedDailyToday, hasStartedDailyToday, startDailyChallenge, isAuthenticated, registerUser } = useGame();
+  const rankStyle = getRankStyles(levelInfo.rank);
+  const userNerdTitle = getHumorousTitle(levelInfo.level);
+
+  // Default game selections matching Screen 01
   const [selectedOps, setSelectedOps] = useState<('ADD' | 'SUBTRACT' | 'MULTIPLY' | 'DIVIDE')[]>(['ADD', 'SUBTRACT']);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<'BASIC' | 'STANDARD' | 'PRO'>('STANDARD');
   const [selectedMode, setSelectedMode] = useState<'CLASSIC' | 'TIME_ATTACK' | 'STREAK' | 'BLITZ' | 'DAILY_CHALLENGE' | 'PUZZLE'>('CLASSIC');
   const [selectedQuestionLimit, setSelectedQuestionLimit] = useState<number>(10);
-  
-  // Registration Inputs
-  const [regUsername, setRegUsername] = useState('');
+
+  // Form guest persist
   const [showRegForm, setShowRegForm] = useState(false);
+  const [regUsername, setRegUsername] = useState("");
+
+  const isDaily = selectedMode === 'DAILY_CHALLENGE';
 
   const toggleOp = (op: 'ADD' | 'SUBTRACT' | 'MULTIPLY' | 'DIVIDE') => {
     playClick();
     if (selectedOps.includes(op)) {
       if (selectedOps.length > 1) {
-        setSelectedOps(selectedOps.filter((x) => x !== op));
+        setSelectedOps(selectedOps.filter(o => o !== op));
       }
     } else {
       setSelectedOps([...selectedOps, op]);
     }
   };
 
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (regUsername.trim()) {
+      registerUser(regUsername.trim());
+      setShowRegForm(false);
+    }
+  };
+
   const handlePlayClick = () => {
     playClick();
+    
+    if (selectedMode === 'DAILY_CHALLENGE') {
+      if (hasStartedDailyToday && !hasPlayedDailyToday) {
+        alert("Daily Run Forfeited: A daily run was already initiated today.");
+        return;
+      }
+      if (hasPlayedDailyToday) {
+        alert("Daily Run Logged: You have already submitted today's run.");
+        return;
+      }
+      startDailyChallenge();
+    }
+
     onStartGame({
       difficulty: selectedDifficulty,
       operations: selectedOps,
@@ -56,489 +83,424 @@ export const Home: React.FC<HomeProps> = ({ onStartGame, setScreen }) => {
     });
   };
 
-  const handleRegister = (e: React.FormEvent) => {
-    e.preventDefault();
-    playClick();
-    if (regUsername.trim()) {
-      registerUser(regUsername);
-      setShowRegForm(false);
-    }
-  };
-
-  const rankStyle = getRankStyles(levelInfo.rank);
-  const userNerdTitle = getHumorousTitle(levelInfo.level);
-
-  // Dynamic colors for the play button based on difficulty
-  const getPlayBtnStyle = () => {
-    switch (selectedDifficulty) {
-      case 'BASIC':
-        return 'bg-lime text-charcoal shadow-maximal-green hover:bg-lime-hover';
-      case 'PRO':
-        return 'bg-pro-purple text-white shadow-maximal-purple hover:bg-pro-purple-hover';
-      case 'STANDARD':
-      default:
-        return 'bg-electric text-white shadow-maximal-blue hover:bg-electric-hover';
-    }
-  };
-
-  const isDaily = selectedMode === 'DAILY_CHALLENGE';
+  // Recompute overall accuracy for stats box
+  const totalCorrect = profile.stats.totalCorrect;
+  const totalAnswered = profile.stats.totalAnswered;
+  const overallAccuracy = totalAnswered === 0 ? 0 : Math.round((totalCorrect / totalAnswered) * 100);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative select-none">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start select-none">
       
-      {/* Decorative Technical Top Rule */}
-      <div className="lg:col-span-12 blueprint-line-h pb-2 mb-2 font-mono text-[9px] text-neutral-400 font-bold flex justify-between">
-        <span>QM // TACTICAL_INTERFACE_v3.0_MAXIMALIST</span>
-        <span>STATUS: EXTREME_YIELD</span>
-      </div>
-
-      {/* LEFT COLUMN: BRANDING & CONTROL CONSOLE (60% Width) */}
+      {/* LEFT COLUMN: BRANDING & CONTROL CONSOLE (60% Width) - Matches Screen 01 */}
       <div className="lg:col-span-7 flex flex-col gap-6 text-left">
         
-        {/* Asymmetrical Swiss Title Block */}
-        <div className="flex gap-4 items-start relative">
-          <div className="hidden sm:block bg-stripes-yellow w-4 h-24 mt-2 border-2 border-charcoal shrink-0 animate-pulse" />
+        {/* Title block */}
+        <div>
+          <h1 className="text-4xl md:text-5xl font-black text-slate-800 dark:text-white leading-tight tracking-tight">
+            MATH<span className="text-electric">.</span>
+          </h1>
+          <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">
+            Think <span className="text-electric">Faster</span>. Solve <span className="text-electric">Smarter</span>.
+          </p>
+        </div>
+
+        {/* Master Screen 01 Card */}
+        <div className="chunky-card flex flex-col gap-6">
+          
+          {/* Horizontal Stats Row */}
+          <div className="grid grid-cols-3 gap-2 bg-slate-50/60 dark:bg-slate-900/40 p-4.5 rounded-2xl border border-slate-100/50 dark:border-slate-800 text-center font-display">
+            <div>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Best Score</span>
+              <span className="text-sm font-extrabold text-slate-800 dark:text-white mt-1 block">
+                {(profile.stats.bestScore[selectedMode] || 0).toLocaleString()}
+              </span>
+            </div>
+            <div className="border-x border-slate-200/60 dark:border-slate-800/80">
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Games Played</span>
+              <span className="text-sm font-extrabold text-slate-800 dark:text-white mt-1 block">
+                {profile.stats.totalGames}
+              </span>
+            </div>
+            <div>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Accuracy</span>
+              <span className="text-sm font-extrabold text-slate-800 dark:text-white mt-1 block">
+                {overallAccuracy}%
+              </span>
+            </div>
+          </div>
+
+          {/* Choose Your Level Section */}
           <div>
-            <div className="technical-label mb-1 glow-text-blue">// MOTHERBOARD_ONLINE</div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-black text-charcoal leading-[0.9] tracking-tight">
-              TRAIN YOUR BRAIN.<br />
-              PLAY THE <span className="text-electric glow-text-blue">NUMBERS.</span>
-            </h1>
-            <p className="text-xs text-neutral-500 font-sans mt-3 max-w-lg leading-relaxed font-semibold">
-              The arithmetic is the hero. Test computation speeds, establish multipliers, and compete against mathematical challenges. Designed for absolute mechanical feedback.
-            </p>
-          </div>
-          
-          {/* Retro Stamps */}
-          <div className="absolute right-4 top-0 hidden md:flex flex-col gap-2 select-none">
-            <div className="system-stamp text-lime border-lime rotate-12 bg-white/40 shadow-sm font-black tracking-widest text-[9px]">
-              QM APPROVED v3.0
+            <div className="flex justify-between items-center mb-3">
+              <span className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 tracking-wider block uppercase">
+                Choose Your Level
+              </span>
+              <button 
+                onClick={() => setScreen('how-to-play')}
+                className="text-[10px] font-bold text-electric hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <HelpCircle className="w-3.5 h-3.5" /> How to Play
+              </button>
             </div>
-            <div className="system-stamp text-coral border-coral rotate-[-8deg] bg-amber-50/90 font-black tracking-widest text-[8px] animate-pulse text-center">
-              COGNITIVE COMBUSTION ZONE
+            
+            <div className="grid grid-cols-3 gap-3 font-display">
+              {/* Beginner */}
+              <button
+                onClick={() => { playClick(); setSelectedDifficulty('BASIC'); }}
+                className={`flex flex-col items-center justify-between p-3.5 rounded-2xl border text-center h-28 transition-all duration-200 cursor-pointer ${
+                  selectedDifficulty === 'BASIC'
+                    ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white border-emerald-500 shadow-md shadow-emerald-500/10'
+                    : 'bg-white dark:bg-zinc-900 border-slate-100 dark:border-slate-800 text-slate-700 dark:text-neutral-300 hover:bg-slate-50/50'
+                }`}
+              >
+                <div className="text-[9px] font-extrabold tracking-widest block uppercase opacity-85">Level 01</div>
+                <div className="font-extrabold text-lg font-mono">01</div>
+                <div className="text-[9px] font-extrabold tracking-wide uppercase opacity-90">Beginner</div>
+              </button>
+
+              {/* Intermediate */}
+              <button
+                onClick={() => { playClick(); setSelectedDifficulty('STANDARD'); }}
+                className={`flex flex-col items-center justify-between p-3.5 rounded-2xl border text-center h-28 transition-all duration-200 cursor-pointer ${
+                  selectedDifficulty === 'STANDARD'
+                    ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white border-blue-500 shadow-md shadow-blue-500/10'
+                    : 'bg-white dark:bg-zinc-900 border-slate-100 dark:border-slate-800 text-slate-700 dark:text-neutral-300 hover:bg-slate-50/50'
+                }`}
+              >
+                <div className="text-[9px] font-extrabold tracking-widest block uppercase opacity-85">Level 02</div>
+                <div className="font-extrabold text-lg font-mono">02</div>
+                <div className="text-[9px] font-extrabold tracking-wide uppercase opacity-90">Intermediate</div>
+              </button>
+
+              {/* Advanced */}
+              <button
+                onClick={() => { playClick(); setSelectedDifficulty('PRO'); }}
+                className={`flex flex-col items-center justify-between p-3.5 rounded-2xl border text-center h-28 transition-all duration-200 cursor-pointer ${
+                  selectedDifficulty === 'PRO'
+                    ? 'bg-gradient-to-br from-purple-500 to-indigo-700 text-white border-purple-500 shadow-md shadow-purple-500/10'
+                    : 'bg-white dark:bg-zinc-900 border-slate-100 dark:border-slate-800 text-slate-700 dark:text-neutral-300 hover:bg-slate-50/50'
+                }`}
+              >
+                <div className="text-[9px] font-extrabold tracking-widest block uppercase opacity-85">Level 03</div>
+                <div className="font-extrabold text-lg font-mono">03</div>
+                <div className="text-[9px] font-extrabold tracking-wide uppercase opacity-90">Advanced</div>
+              </button>
             </div>
           </div>
-        </div>
 
-        {/* Master Control Panel */}
-        <div className="chunky-card bg-white border-charcoal shadow-maximal-blue glass-reflection">
-          
-          {/* Header Warning Stripe */}
-          <div className="h-3 bg-stripes-yellow w-full border-b-[3px] border-charcoal" />
+          {/* Choose Operations Matrix */}
+          <div>
+            <span className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 tracking-wider block uppercase mb-3">
+              Choose Operations
+            </span>
+            
+            <div className="grid grid-cols-4 gap-2 font-display">
+              {[
+                { id: 'ADD', symbol: '+', activeClass: 'bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-500/10', unactiveText: 'text-emerald-500' },
+                { id: 'SUBTRACT', symbol: '−', activeClass: 'bg-blue-500 text-white border-blue-500 shadow-md shadow-blue-500/10', unactiveText: 'text-blue-500' },
+                { id: 'MULTIPLY', symbol: '×', activeClass: 'bg-purple-500 text-white border-purple-500 shadow-md shadow-purple-500/10', unactiveText: 'text-purple-500' },
+                { id: 'DIVIDE', symbol: '÷', activeClass: 'bg-amber-500 text-white border-amber-500 shadow-md shadow-amber-500/10', unactiveText: 'text-amber-500' },
+              ].map((op) => {
+                const isActive = selectedOps.includes(op.id as any);
+                return (
+                  <button
+                    key={op.id}
+                    onClick={() => toggleOp(op.id as any)}
+                    className={`h-14 rounded-xl border flex items-center justify-center font-extrabold text-2xl transition-all duration-200 cursor-pointer ${
+                      isActive 
+                        ? op.activeClass 
+                        : `bg-white dark:bg-zinc-900 border-slate-200 dark:border-slate-800 ${op.unactiveText} hover:bg-slate-50 dark:hover:bg-zinc-800/60`
+                    }`}
+                  >
+                    {op.symbol}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-          <div className="p-5 md:p-6 flex flex-col gap-6 relative">
-            <div className="absolute top-1 left-2 text-[9px] font-mono text-neutral-300 font-extrabold">[01]</div>
-            <div className="absolute bottom-1 right-2 text-[9px] font-mono text-neutral-300 font-extrabold">[SYS.CNF]</div>
+          {/* Mode Selector Row */}
+          <div>
+            <span className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 tracking-wider block uppercase mb-2.5">
+              Gameplay Simulator Mode
+            </span>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 font-display">
+              {[
+                { id: 'CLASSIC', name: 'CLASSIC', desc: '3 strikes standard.' },
+                { id: 'TIME_ATTACK', name: 'TIME ATTACK', desc: '60s ticking clock.' },
+                { id: 'STREAK', name: 'STREAK', desc: 'Sudden death mode.' },
+                { id: 'BLITZ', name: 'BLITZ', desc: 'Short 3s timer limit.' },
+                { id: 'DAILY_CHALLENGE', name: 'DAILY RUN', desc: 'Rank globally.' },
+                { id: 'PUZZLE', name: 'PUZZLE', desc: 'Swap tiles equation.' },
+              ].map((mode) => {
+                const isActive = selectedMode === mode.id;
+                return (
+                  <button
+                    key={mode.id}
+                    onClick={() => { playClick(); setSelectedMode(mode.id as any); }}
+                    className={`p-2.5 rounded-2xl border text-left flex flex-col justify-between h-20 transition-all duration-150 cursor-pointer ${
+                      isActive 
+                        ? 'bg-electric text-white border-electric shadow-md shadow-blue-500/10' 
+                        : 'bg-white dark:bg-zinc-900 border-slate-100 dark:border-slate-800 hover:bg-slate-50/50'
+                    }`}
+                  >
+                    <span className="font-extrabold text-[10px] tracking-tight">{mode.name}</span>
+                    <span className={`text-[8.5px] font-sans leading-tight mt-1 font-medium block ${
+                      isActive ? 'text-white/80' : 'text-slate-400'
+                    }`}>
+                      {mode.desc}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-            {/* 1. Operation Select Matrix (Multi-Color Active Layout with glow) */}
-            <div>
-              <div className="flex justify-between items-center mb-3">
-                <span className="technical-label text-charcoal font-black">01 // OPERATIONS INTEGRATION</span>
-                <span className="text-[9px] font-mono font-bold text-neutral-400 border border-charcoal/20 px-1.5 py-[1px] rounded bg-neutral-50">
-                  MULTI-SELECT ENABLED
+          {/* Session Length row */}
+          <div>
+            <div className="flex justify-between items-center mb-2.5">
+              <span className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 tracking-wider block uppercase">
+                Session Length
+              </span>
+              {isDaily && (
+                <span className="text-[8.5px] font-bold text-coral bg-coral/5 px-2 py-0.5 rounded border border-coral/10">
+                  LOCKED TO 20 ON DAILY RUNS
                 </span>
-              </div>
-              
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 font-display">
-                {[
-                  { id: 'ADD', label: 'ADD', symbol: '+', activeClass: 'bg-electric text-white shadow-glow-blue' },
-                  { id: 'SUBTRACT', label: 'SUBTRACT', symbol: '−', activeClass: 'bg-coral text-white shadow-glow-coral' },
-                  { id: 'MULTIPLY', label: 'MULTIPLY', symbol: '×', activeClass: 'bg-rewards-yellow text-charcoal shadow-glow-yellow' },
-                  { id: 'DIVIDE', label: 'DIVIDE', symbol: '÷', activeClass: 'bg-pro-purple text-white shadow-glow-purple' },
-                ].map((op) => {
-                  const isActive = selectedOps.includes(op.id as any);
-                  return (
-                    <button
-                      key={op.id}
-                      onClick={() => toggleOp(op.id as any)}
-                      className={`btn-chunky flex flex-col items-center justify-center p-3 h-20 glass-reflection ${
-                        isActive 
-                          ? `${op.activeClass} translate-x-[2px] translate-y-[2px]` 
-                          : 'bg-white text-charcoal hover:bg-neutral-50 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#1C1A17]'
-                      }`}
-                      style={isActive ? {} : { boxShadow: '2px 2px 0px 0px #1C1A17' }}
-                    >
-                      <span className="text-xl font-black">{op.symbol}</span>
-                      <span className="text-[9px] font-extrabold tracking-wide mt-1 block">{op.label}</span>
-                    </button>
-                  );
-                })}
-
-                {/* All Operations override */}
-                <button
-                  onClick={() => { playClick(); setSelectedOps(['ADD', 'SUBTRACT', 'MULTIPLY', 'DIVIDE']); }}
-                  className={`btn-chunky flex flex-col items-center justify-center p-3 h-20 glass-reflection col-span-2 sm:col-span-1 ${
-                    selectedOps.length === 4 
-                      ? 'bg-charcoal text-ivory shadow-[2px_2px_0px_0px_#2563EB] translate-x-[2px] translate-y-[2px]' 
-                      : 'bg-white text-charcoal hover:bg-neutral-50 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#1C1A17]'
-                  }`}
-                  style={selectedOps.length === 4 ? { boxShadow: '2px 2px 0px 0px #2563EB' } : {}}
-                >
-                  <span className="text-xl font-black">∞</span>
-                  <span className="text-[9px] font-extrabold tracking-wide mt-1 block">ALL OPS</span>
-                </button>
-              </div>
+              )}
             </div>
-
-            {/* 2. Difficulty Tiers (Responsive stack on mobile) */}
-            <div>
-              <span className="technical-label block mb-3 text-charcoal font-black">02 // SELECT COMPUTATION LEVEL</span>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-display">
-                {[
-                  { id: 'BASIC', label: 'BASIC', desc: 'Simple ops. Easy XP.', activeStyle: 'bg-lime text-charcoal shadow-glow-green' },
-                  { id: 'STANDARD', label: 'STANDARD', desc: 'Thinking cap math.', activeStyle: 'bg-electric text-white shadow-glow-blue' },
-                  { id: 'PRO', label: 'PRO ARCH', desc: 'Brain combustion risk!', activeStyle: 'bg-pro-purple text-white shadow-glow-purple' },
-                ].map((diff) => {
-                  const isActive = selectedDifficulty === diff.id;
-                  return (
-                    <button
-                      key={diff.id}
-                      onClick={() => { playClick(); setSelectedDifficulty(diff.id as any); }}
-                      className={`btn-chunky p-3.5 flex flex-col items-start justify-between text-left h-24 sm:h-28 glass-reflection ${
-                        isActive 
-                          ? `${diff.activeStyle} translate-x-[2px] translate-y-[2px]` 
-                          : 'bg-white text-charcoal hover:bg-neutral-50 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#1C1A17]'
-                      }`}
-                      style={isActive ? {} : { boxShadow: '2px 2px 0px 0px #1C1A17' }}
-                    >
-                      <div className="flex items-center justify-between w-full">
-                        <span className="font-black text-sm tracking-tight">{diff.label}</span>
-                        {isActive && <span className="text-[8px] font-mono font-bold uppercase leading-none opacity-80 shrink-0">● ACTIVE</span>}
-                      </div>
-                      <span className={`text-[9px] font-sans font-semibold mt-2.5 leading-snug tracking-tight ${
-                        isActive ? 'text-current opacity-90' : 'text-neutral-400'
-                      }`}>
-                        {diff.desc}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+            
+            <div className="flex flex-wrap gap-2 font-display">
+              {[5, 7, 10, 15, 20, 25, 30].map((num) => {
+                const isActive = isDaily ? num === 20 : selectedQuestionLimit === num;
+                return (
+                  <button
+                    key={num}
+                    disabled={isDaily}
+                    onClick={() => { playClick(); setSelectedQuestionLimit(num); }}
+                    className={`px-3.5 py-1.5 text-[10px] font-extrabold rounded-xl border transition-all cursor-pointer ${
+                      isActive 
+                        ? 'bg-electric text-white border-electric shadow-sm' 
+                        : 'bg-white dark:bg-zinc-900 border-slate-100 dark:border-slate-800 text-slate-700 dark:text-neutral-300 hover:bg-slate-50'
+                    } ${isDaily ? 'opacity-40 cursor-not-allowed' : ''}`}
+                  >
+                    {num} Qs
+                  </button>
+                );
+              })}
             </div>
-
-            {/* 3. Selector of Game Modes (Dynamic Colors matching Plan) */}
-            <div>
-              <span className="technical-label block mb-3 text-charcoal font-black">03 // GAMEPLAY SIMULATOR MODE</span>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 font-display">
-                {[
-                  { id: 'CLASSIC', name: 'CLASSIC', desc: '3 strikes system.', activeStyle: 'bg-lime text-charcoal shadow-glow-green' },
-                  { id: 'TIME_ATTACK', name: 'TIME ATTACK', desc: '60s computation.', activeStyle: 'bg-rewards-yellow text-charcoal shadow-glow-yellow' },
-                  { id: 'STREAK', name: 'STREAK', desc: 'Sudden death limit.', activeStyle: 'bg-coral text-white shadow-glow-coral' },
-                  { id: 'BLITZ', name: 'BLITZ', desc: 'Shortening 3s timers.', activeStyle: 'bg-pro-purple text-white shadow-glow-purple' },
-                  { id: 'DAILY_CHALLENGE', name: 'DAILY RUN', desc: 'Synchronized seed.', activeStyle: 'bg-rewards-yellow text-charcoal shadow-glow-yellow' },
-                  { id: 'PUZZLE', name: 'PUZZLE', desc: 'Super addictive swap!', activeStyle: 'bg-rose-400 text-white shadow-glow-coral' },
-                ].map((mode) => {
-                  const isActive = selectedMode === mode.id;
-                  return (
-                    <button
-                      key={mode.id}
-                      onClick={() => { playClick(); setSelectedMode(mode.id as any); }}
-                      className={`btn-chunky p-3 flex flex-col items-start justify-between text-left h-24 glass-reflection ${
-                        isActive 
-                          ? `${mode.activeStyle} translate-x-[2px] translate-y-[2px]` 
-                          : 'bg-white text-charcoal hover:bg-neutral-50 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_#1C1A17]'
-                      }`}
-                      style={isActive ? {} : { boxShadow: '2px 2px 0px 0px #1C1A17' }}
-                    >
-                      <div className="flex items-center justify-between w-full">
-                        <span className="font-extrabold text-xs tracking-tight">{mode.name}</span>
-                        {isActive && <span className="text-[8px] font-mono leading-none shrink-0">● ON</span>}
-                      </div>
-                      <span className={`text-[9px] font-sans font-medium leading-snug mt-1.5 block ${
-                        isActive ? 'text-current opacity-80' : 'text-neutral-400'
-                      }`}>
-                        {mode.desc}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* 4. Session Length Select row (Chunky tags) */}
-            <div>
-              <div className="flex justify-between items-center mb-3">
-                <span className="technical-label text-charcoal font-black">04 // SESSION EQUATION LENGTH</span>
-                {isDaily && (
-                  <span className="text-[8.5px] font-mono font-black text-coral border border-coral/30 bg-red-50 px-2 py-[1px]">
-                    FIXED TO 20 ON DAILY RUNS
-                  </span>
-                )}
-              </div>
-              
-              <div className="flex flex-wrap gap-2 font-display">
-                {[5, 7, 10, 15, 20, 25, 30].map((num) => {
-                  const isActive = isDaily ? num === 20 : selectedQuestionLimit === num;
-                  return (
-                    <button
-                      key={num}
-                      disabled={isDaily}
-                      onClick={() => { playClick(); setSelectedQuestionLimit(num); }}
-                      className={`btn-chunky px-3.5 py-1.5 text-xs font-black glass-reflection transition-all ${
-                        isActive 
-                          ? 'bg-electric text-white shadow-glow-blue' 
-                          : 'bg-white text-charcoal hover:bg-neutral-50'
-                      } ${isDaily ? 'opacity-40 cursor-not-allowed' : ''}`}
-                      style={isActive ? {} : { boxShadow: '2px 2px 0px 0px #1C1A17' }}
-                    >
-                      {num} Qs
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
           </div>
+
         </div>
 
-        {/* Massive Play Button with dynamic background & glow matching selected difficulty */}
+        {/* Large Play Button */}
         <button
           onClick={handlePlayClick}
-          className={`btn-chunky w-full py-5 inline-flex items-center justify-center gap-2 select-none font-display font-black text-xl tracking-widest transition-all glass-reflection ${getPlayBtnStyle()}`}
+          className="btn-chunky w-full py-4.5 bg-electric hover:bg-electric-hover text-white border-electric text-sm font-bold tracking-widest cursor-pointer inline-flex items-center justify-center gap-2"
         >
-          <Play className="fill-current w-5 h-5 animate-bounce" />
-          START GAME SESSION
+          <span>PLAY</span>
+          <ChevronRight className="w-4 h-4" />
         </button>
 
       </div>
 
-      {/* RIGHT COLUMN: HARDWARE SUMMARY & RECORDS (40% Width) */}
+      {/* RIGHT COLUMN: PROFILE & DATA SUMMARY (40% Width) - Sleek Sidebar details */}
       <div className="lg:col-span-5 flex flex-col gap-6">
 
         {/* Technical Registry Card */}
-        <div className="chunky-card bg-white text-left border-charcoal shadow-maximal-blue glass-reflection">
-          {/* Top Stripe */}
-          <div className="h-2 bg-stripes-light w-full border-b-2 border-charcoal" />
-
-          <div className="p-5 relative">
-            <div className="absolute top-1 left-2 text-[9px] font-mono text-neutral-300 font-extrabold select-none">[02]</div>
-            <div className="absolute top-1 right-2 text-[9px] font-mono text-neutral-300 font-extrabold select-none">[PLR.REG]</div>
-
-            <div className="flex items-center gap-4 mt-2">
-              <div className="w-14 h-14 bg-charcoal text-ivory border-[3px] border-charcoal flex items-center justify-center font-display font-black text-2xl shadow-glow-blue shrink-0 animate-pulse">
-                {profile.username.substring(0, 2).toUpperCase()}
+        <div className="chunky-card">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-slate-50 dark:bg-zinc-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center font-display font-black text-xl rounded-2xl shrink-0 dark:text-white">
+              {profile.username.substring(0, 2).toUpperCase()}
+            </div>
+            
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">MODULE:</span>
+                <span className="text-[9px] font-mono font-bold text-electric">
+                  {isAuthenticated ? 'ONLINE_REGISTRY' : 'LOCAL_GUEST'}
+                </span>
               </div>
+              <h3 className="font-display font-extrabold text-lg text-slate-800 dark:text-white truncate">
+                {profile.username}
+              </h3>
               
-              <div className="flex-1 min-w-0">
+              <div className="flex flex-col gap-1 mt-1 leading-none">
                 <div className="flex items-center gap-1.5">
-                  <span className="technical-label text-charcoal">MODULE:</span>
-                  <span className="text-[9px] font-mono font-black text-electric select-none glow-text-blue">
-                    {isAuthenticated ? 'ONLINE_REGISTRY' : 'LOCAL_TEMP_GUEST'}
+                  <span className={`text-[8.5px] font-mono font-bold px-1.5 py-0.5 rounded border border-slate-100 dark:border-slate-800 uppercase leading-none ${rankStyle.bg} ${rankStyle.text}`}>
+                    {levelInfo.rank}
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-400">
+                    LEVEL {levelInfo.level}
                   </span>
                 </div>
-                <h3 className="font-display font-black text-xl text-charcoal truncate mt-0.5">
-                  {profile.username}
-                </h3>
-                
-                <div className="flex flex-col gap-1 mt-1 leading-none">
-                  <div className="flex items-center gap-1.5">
-                    <span className={`text-[9px] font-mono font-extrabold px-1.5 py-[1px] border-2 border-charcoal uppercase leading-none ${rankStyle.bg} ${rankStyle.text}`}>
-                      {levelInfo.rank}
-                    </span>
-                    <span className="text-[10px] font-mono font-bold text-neutral-500">
-                      SYSTEM LEVEL {levelInfo.level}
-                    </span>
-                  </div>
-                  <span className="text-[9.5px] font-mono font-black text-pro-purple glow-text-purple mt-1 select-none">
-                    {userNerdTitle}
-                  </span>
-                </div>
-
+                <span className="text-[9.5px] font-mono font-semibold text-pro-purple mt-1 select-none">
+                  {userNerdTitle}
+                </span>
               </div>
+
             </div>
+          </div>
 
-            {/* Level segments */}
-            <div className="mt-4 pt-4 border-t-2 border-dashed border-charcoal/10">
-              <div className="flex justify-between items-end text-xs font-mono font-bold text-neutral-400 mb-1.5">
-                <span className="text-charcoal">XP METERS SYSTEM</span>
-                <span>{levelInfo.currentLevelXP} / {levelInfo.nextLevelXP} XP</span>
-              </div>
-              
-              {/* Chunky Segmented Progress Bar */}
-              <div className="flex items-center border-[3px] border-charcoal bg-neutral-100 p-0.5 h-6 shadow-[2px_2px_0px_0px_#1C1A17]">
-                {Array.from({ length: 20 }).map((_, idx) => {
-                  const stepVal = (idx / 20) * 100;
-                  const isFilled = levelInfo.percentage > stepVal;
-                  return (
-                    <div
-                      key={idx}
-                      className={`h-full flex-1 border-r border-charcoal last:border-0 transition-colors ${
-                        isFilled ? 'bg-lime shadow-glow-green' : 'bg-transparent'
-                      }`}
-                    />
-                  );
-                })}
-              </div>
+          {/* Level segments */}
+          <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-850">
+            <div className="flex justify-between items-end text-[10px] font-mono font-bold text-slate-400 mb-1.5">
+              <span>XP METERS SYSTEM</span>
+              <span>{levelInfo.currentLevelXP} / {levelInfo.nextLevelXP} XP</span>
             </div>
+            
+            {/* Segmented Progress Bar */}
+            <div className="flex items-center border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-zinc-800/40 p-0.5 h-4.5 rounded-full overflow-hidden">
+              {Array.from({ length: 15 }).map((_, idx) => {
+                const stepVal = (idx / 15) * 100;
+                const isFilled = levelInfo.percentage > stepVal;
+                return (
+                  <div
+                    key={idx}
+                    className={`h-full flex-1 border-r border-slate-200/20 dark:border-zinc-700 last:border-0 transition-colors ${
+                      isFilled ? 'bg-lime' : 'bg-transparent'
+                    }`}
+                  />
+                );
+              })}
+            </div>
+          </div>
 
-            {/* Simulated Register Block */}
-            {!isAuthenticated && (
-              <div className="mt-5 pt-4 border-t-2 border-dashed border-charcoal/10">
-                {!showRegForm ? (
+          {/* Persist Guest form */}
+          {!isAuthenticated && (
+            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-850">
+              {!showRegForm ? (
+                <button
+                  onClick={() => { playClick(); setShowRegForm(true); }}
+                  className="w-full border border-dashed border-slate-250 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 py-2 rounded-2xl text-xs font-semibold text-slate-500 dark:text-slate-400 text-center flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <LogIn className="w-3.5 h-3.5 text-electric" />
+                  PERSIST PROFILE DATA
+                </button>
+              ) : (
+                <form onSubmit={handleRegister} className="flex gap-2">
+                  <input
+                    type="text"
+                    required
+                    maxLength={16}
+                    placeholder="Enter username..."
+                    value={regUsername}
+                    onChange={(e) => setRegUsername(e.target.value)}
+                    className="flex-1 border border-slate-200 dark:border-slate-700 bg-white dark:bg-zinc-800 rounded-2xl px-3 py-1.5 text-xs focus:outline-none focus:border-electric dark:text-white"
+                  />
                   <button
-                    onClick={() => { playClick(); setShowRegForm(true); }}
-                    className="w-full border-2 border-dashed border-charcoal/40 hover:border-charcoal py-2 text-xs font-bold font-display text-center flex items-center justify-center gap-1.5 transition-colors"
+                    type="submit"
+                    className="btn-chunky px-4 py-1.5 bg-lime hover:bg-lime/90 text-white border-lime font-bold"
                   >
-                    <LogIn className="w-3.5 h-3.5 text-electric" />
-                    PERSIST PLAYER SYSTEM LOGS
+                    SAVE
                   </button>
-                ) : (
-                  <form onSubmit={handleRegister} className="flex gap-2">
-                    <input
-                      type="text"
-                      required
-                      maxLength={16}
-                      placeholder="Registry nick..."
-                      value={regUsername}
-                      onChange={(e) => setRegUsername(e.target.value)}
-                      className="flex-1 border-[3px] border-charcoal px-3 py-1 text-xs font-display font-black focus:outline-none focus:border-electric"
-                    />
-                    <button
-                      type="submit"
-                      className="btn-chunky border-[3px] py-1 shadow-glow-green bg-lime px-4 inline-flex items-center justify-center text-charcoal font-black"
-                    >
-                      SAVE
-                    </button>
-                  </form>
-                )}
-              </div>
+                </form>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Daily Challenge Card */}
+        <div className="chunky-card">
+          <div className="flex items-center justify-between">
+            <h4 className="font-display font-extrabold text-sm text-slate-800 dark:text-white flex items-center gap-1.5">
+              <Calendar className="w-4 h-4 text-electric" />
+              DAILY ARITHMETIC RUN
+            </h4>
+            <span className="text-[9px] font-mono font-bold bg-slate-50 dark:bg-zinc-800 border border-slate-100 dark:border-slate-800 px-2 py-0.5 rounded text-slate-500">
+              {new Date().toLocaleDateString(undefined, { month: '2-digit', day: '2-digit', year: '2-digit' }).replace(/\//g, '.')}
+            </span>
+          </div>
+          
+          <p className="text-xs text-slate-400 dark:text-slate-500 font-sans mt-2 leading-relaxed font-medium">
+            A synchronized daily seed of exactly 20 equations. Compete globally on the global rankings ladder.
+          </p>
+
+          <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-850 flex items-center justify-between gap-3">
+            {hasPlayedDailyToday ? (
+              <>
+                <span className="text-xs font-bold text-lime flex items-center gap-1">
+                  <CheckCircle className="w-4 h-4" /> LOGGED TODAY
+                </span>
+                <button
+                  onClick={() => { playClick(); setScreen('leaderboard'); }}
+                  className="btn-chunky py-1.5 px-4"
+                >
+                  VIEW LADDER
+                </button>
+              </>
+            ) : hasStartedDailyToday ? (
+              <>
+                <span className="text-xs font-bold text-coral flex items-center gap-1 select-none">
+                  ⚠️ ATTEMPT FORFEITED
+                </span>
+                <button
+                  onClick={() => { playClick(); setScreen('leaderboard'); }}
+                  className="btn-chunky py-1.5 px-4"
+                >
+                  VIEW LADDER
+                </button>
+              </>
+            ) : (
+              <>
+                <span className="text-[10px] font-mono font-bold text-slate-400">
+                  STATUS: ACTIVE TODAY
+                </span>
+                <button
+                  onClick={() => {
+                    playClick();
+                    startDailyChallenge();
+                    onStartGame({
+                      difficulty: 'STANDARD',
+                      operations: ['ADD', 'SUBTRACT', 'MULTIPLY', 'DIVIDE'],
+                      mode: 'DAILY_CHALLENGE',
+                      questionLimit: 20,
+                    });
+                  }}
+                  className="btn-chunky bg-rewards-yellow text-white border-rewards-yellow py-1.5 px-4 inline-flex items-center gap-1 cursor-pointer"
+                >
+                  ENTER RUN <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </>
             )}
           </div>
         </div>
 
-        {/* Daily Ticker event (Amber Glow highlight + stripes) */}
-        <div className="chunky-card bg-white text-left border-charcoal shadow-maximal-yellow glass-reflection">
-          {/* Header Warning Stripe */}
-          <div className="h-3 bg-stripes-yellow w-full border-b-[3px] border-charcoal" />
+        {/* System Performance stats */}
+        <div className="chunky-card">
+          <h4 className="font-display font-extrabold text-sm text-slate-800 dark:text-white flex items-center gap-1.5 mb-3">
+            <Layers className="w-4 h-4 text-lime" />
+            SYSTEM PERFORMANCE METRICS
+          </h4>
 
-          <div className="p-5 relative">
-            <div className="absolute top-1 left-2 text-[9px] font-mono text-neutral-300 font-extrabold select-none">[03]</div>
-            <div className="absolute top-1 right-2 text-[9px] font-mono text-neutral-300 font-extrabold select-none">[DLY.EVT]</div>
-
-            <div>
-              <div className="flex items-center justify-between mt-2">
-                <h4 className="font-display font-black text-md text-charcoal">
-                  DAILY SYSTEM COMPILATION
-                </h4>
-                <span className="text-[9px] font-mono font-extrabold bg-neutral-100 border border-charcoal/20 px-2 py-[1px] rounded shadow-[1px_1px_0px_0px_rgba(28,26,23,0.15)]">
-                  {new Date().toLocaleDateString(undefined, { month: '2-digit', day: '2-digit', year: '2-digit' }).replace(/\//g, '.')}
-                </span>
-              </div>
-              
-              <p className="text-xs text-neutral-500 font-sans mt-2 leading-relaxed font-semibold">
-                Exactly 20 identical arithmetic equations. Compete globally on the clock.
-              </p>
-            </div>
-
-            <div className="mt-4 flex items-center justify-between gap-3">
-              {hasPlayedDailyToday ? (
-                <>
-                  <span className="text-xs font-black text-lime flex items-center gap-1 glow-text-green">
-                    <CheckCircle className="w-4 h-4" /> LOGGED TODAY
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { label: 'TOTAL GAMES', val: `${profile.stats.totalGames} runs`, icon: Gamepad2, color: 'text-slate-400' },
+              { label: 'RECORD STREAK', val: profile.stats.bestStreak, icon: Flame, color: 'text-coral' },
+              { label: 'ACCURACY', val: profile.stats.totalAnswered === 0 ? '0%' : `${Math.round((profile.stats.totalCorrect / profile.stats.totalAnswered) * 100)}%`, icon: CheckCircle, color: 'text-lime' },
+              { label: 'AVG RESPONSE', val: profile.stats.averageResponseTime === 0 ? '0.0s' : `${profile.stats.averageResponseTime}s`, icon: Clock, color: 'text-electric' },
+            ].map((stat, i) => {
+              const Icon = stat.icon;
+              return (
+                <div 
+                  key={i}
+                  className="border border-slate-50 dark:border-slate-800/80 p-3 bg-slate-50/50 dark:bg-zinc-800/30 rounded-2xl"
+                >
+                  <span className="technical-label text-[9px] block">{stat.label}</span>
+                  <span className="font-display font-bold text-base text-slate-850 dark:text-white flex items-center gap-1 mt-1">
+                    <Icon className={`w-4 h-4 ${stat.color}`} />
+                    {stat.val}
                   </span>
-                  <button
-                    onClick={() => { playClick(); setScreen('leaderboard'); }}
-                    className="btn-chunky border-[3px] shadow-[2px_2px_0px_0px_#1C1A17] bg-neutral-100 py-2 px-4 inline-flex items-center justify-center"
-                  >
-                    VIEW LADDER
-                  </button>
-                </>
-              ) : hasStartedDailyToday ? (
-                <>
-                  <span className="text-xs font-black text-coral flex items-center gap-1.5 glow-text-coral animate-pulse select-none">
-                    ⚠️ ATTEMPT FORFEITED
-                  </span>
-                  <button
-                    onClick={() => { playClick(); setScreen('leaderboard'); }}
-                    className="btn-chunky border-[3px] shadow-[2px_2px_0px_0px_#1C1A17] bg-neutral-100 py-2 px-4 inline-flex items-center justify-center"
-                  >
-                    VIEW LADDER
-                  </button>
-                </>
-              ) : (
-                <>
-                  <span className="text-[10px] font-mono font-black text-red-500 animate-pulse flex items-center gap-1.5 glow-text-coral">
-                    ● ACTIVE CHALLENGE
-                  </span>
-                  <button
-                    onClick={() => {
-                      playClick();
-                      startDailyChallenge();
-                      onStartGame({
-                        difficulty: 'STANDARD',
-                        operations: ['ADD', 'SUBTRACT', 'MULTIPLY', 'DIVIDE'],
-                        mode: 'DAILY_CHALLENGE',
-                        questionLimit: 20,
-                      });
-                    }}
-                    className="btn-chunky border-[3px] shadow-glow-yellow bg-rewards-yellow py-2 px-4 text-charcoal inline-flex items-center justify-center"
-                  >
-                    ENTER LOBBY <ChevronRight className="w-4 h-4 animate-ping" />
-                  </button>
-                </>
-              )}
-            </div>
+                </div>
+              );
+            })}
           </div>
-        </div>
-
-        {/* Blueprint Dashboard with various glowing indicators */}
-        <div className="chunky-card bg-white text-left border-charcoal shadow-maximal-green glass-reflection">
-          {/* Header Stripes */}
-          <div className="h-2 bg-stripes-light w-full border-b-2 border-charcoal" />
-
-          <div className="p-5 relative">
-            <div className="absolute top-1 left-2 text-[9px] font-mono text-neutral-300 font-extrabold select-none">[04]</div>
-            <div className="absolute top-1 right-2 text-[9px] font-mono text-neutral-300 font-extrabold select-none">[ARC.DAT]</div>
-
-            <div className="grid grid-cols-2 gap-4 mt-2">
-              <div 
-                onClick={() => playClick()}
-                className="border-2 border-charcoal p-2.5 bg-neutral-50 shadow-[1.5px_1.5px_0px_0px_#1C1A17] hover:shadow-glow-blue transition-all relative overflow-hidden cursor-pointer"
-              >
-                <span className="technical-label">TOTAL GAMES</span>
-                <span className="font-display font-black text-lg text-charcoal block mt-1">{profile.stats.totalGames} runs</span>
-              </div>
-              <div 
-                onClick={() => playClick()}
-                className="border-2 border-charcoal p-2.5 bg-neutral-50 shadow-[1.5px_1.5px_0px_0px_#1C1A17] hover:shadow-glow-coral transition-all relative overflow-hidden cursor-pointer"
-              >
-                <span className="technical-label">RECORD STREAK</span>
-                <span className="font-display font-black text-lg text-charcoal flex items-center gap-1 mt-1 glow-text-coral">
-                  <Flame className="w-4 h-4 text-red-500 fill-red-400" />
-                  {profile.stats.bestStreak}
-                </span>
-              </div>
-              <div 
-                onClick={() => playClick()}
-                className="border-2 border-charcoal p-2.5 bg-neutral-50 shadow-[1.5px_1.5px_0px_0px_#1C1A17] hover:shadow-glow-green transition-all relative overflow-hidden cursor-pointer"
-              >
-                <span className="technical-label">ACCURACY RATING</span>
-                <span className="font-display font-black text-lg text-charcoal flex items-center gap-1 mt-1 glow-text-green">
-                  <CheckCircle className="w-4 h-4 text-lime" />
-                  {profile.stats.totalAnswered === 0
-                    ? '0%'
-                    : `${Math.round((profile.stats.totalCorrect / profile.stats.totalAnswered) * 100)}%`}
-                </span>
-              </div>
-              <div 
-                onClick={() => playClick()}
-                className="border-2 border-charcoal p-2.5 bg-neutral-50 shadow-[1.5px_1.5px_0px_0px_#1C1A17] hover:shadow-glow-blue transition-all relative overflow-hidden cursor-pointer"
-              >
-                <span className="technical-label">AVG RESPONSE</span>
-                <span className="font-display font-black text-lg text-charcoal flex items-center gap-1 mt-1 glow-text-blue">
-                  <Clock className="w-4 h-4 text-electric" />
-                  {profile.stats.averageResponseTime === 0 ? '0.0s' : `${profile.stats.averageResponseTime}s`}
-                </span>
-              </div>
-            </div>
-            
-            <button
-              onClick={() => { playClick(); setScreen('profile'); }}
-              className="btn-chunky w-full border-[3px] shadow-[2px_2px_0px_0px_#1C1A17] py-2.5 mt-4 bg-white text-charcoal inline-flex items-center justify-center hover:shadow-glow-blue"
-            >
-              OPEN SYSTEM BLUEPRINTS
-            </button>
-          </div>
+          
+          <button
+            onClick={() => { playClick(); setScreen('profile'); }}
+            className="btn-chunky w-full py-2 mt-4"
+          >
+            OPEN SYSTEM PROFILE
+          </button>
         </div>
 
       </div>

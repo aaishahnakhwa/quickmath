@@ -18,24 +18,17 @@ export const Profile: React.FC<ProfileProps> = () => {
   return (
     <div className="flex flex-col gap-6 text-left select-none max-w-4xl mx-auto relative">
       
-      {/* Decorative Technical Top Rule */}
-      <div className="blueprint-line-h pb-2 mb-1 font-mono text-[9px] text-neutral-400 font-bold flex justify-between select-none">
-        <span>QM // SYSTEM_LOG_DIAGRAM</span>
-        <span>INDEX: PLR-LOG-01</span>
-      </div>
-
       {/* 1. Header Hero Card */}
-      <div className="chunky-card p-6 bg-white flex flex-col md:flex-row md:items-center justify-between gap-6 border-charcoal shadow-glow-blue glass-reflection">
-        <div className="absolute top-1 left-2 text-[9px] font-mono text-neutral-300 font-extrabold select-none">[01]</div>
+      <div className="chunky-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
         
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-charcoal text-ivory border-[3px] border-charcoal flex items-center justify-center font-display font-black text-3xl shadow-glow-blue animate-pulse">
+          <div className="w-14 h-14 bg-neutral-100 dark:bg-zinc-800 border border-neutral-200 dark:border-neutral-700 flex items-center justify-center font-display font-black text-2xl rounded-xl shrink-0 dark:text-white">
             {profile.username.substring(0, 2).toUpperCase()}
           </div>
           <div>
-            <h2 className="font-display font-black text-2xl text-charcoal">{profile.username}</h2>
-            <div className="flex items-center gap-2.5 mt-1 font-mono text-[9px] font-extrabold text-neutral-400">
-              <span>MODULE: ONLINE_DIAGNOSTICS_CARD</span>
+            <h2 className="font-display font-extrabold text-xl text-charcoal dark:text-white">{profile.username}</h2>
+            <div className="flex items-center gap-2.5 mt-1 font-mono text-[9px] font-bold text-neutral-400">
+              <span>MODULE: PROFILE_DIAGNOSTICS_CARD</span>
               <span>•</span>
               <span>XP ACCUMULATED: {profile.totalXP.toLocaleString()}</span>
             </div>
@@ -43,48 +36,44 @@ export const Profile: React.FC<ProfileProps> = () => {
         </div>
 
         {/* Level Stats Segment */}
-        <div className="flex items-center gap-4 border-[3px] border-dashed border-charcoal/20 p-3.5 bg-neutral-50 md:min-w-[220px] shadow-glow-purple relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-6 h-6 bg-stripes-light opacity-30" />
-          
+        <div className="flex items-center gap-4 border border-neutral-200 dark:border-neutral-800 p-3.5 bg-neutral-50 dark:bg-zinc-800/40 rounded-xl md:min-w-[220px]">
           <div>
-            <span className="technical-label block text-[8px] text-charcoal">RANK TIER</span>
-            <span className={`text-xs font-black font-display tracking-tight uppercase block mt-1 ${rankStyle.text} glow-text-purple`}>
+            <span className="technical-label block text-[8px]">RANK TIER</span>
+            <span className={`text-xs font-black font-display tracking-tight uppercase block mt-1 ${rankStyle.text}`}>
               {levelInfo.rank}
             </span>
-            <span className="text-[9px] font-mono font-black text-pro-purple glow-text-purple mt-0.5 block">
+            <span className="text-[9px] font-mono font-bold text-pro-purple mt-0.5 block">
               {userNerdTitle}
             </span>
           </div>
-          <div className="h-10 w-[1.5px] bg-charcoal/10" />
+          <div className="h-8 w-[1px] bg-neutral-200 dark:bg-neutral-700" />
           <div>
-            <span className="technical-label block text-[8px] text-charcoal">LEVEL</span>
-            <span className="text-xl font-display font-black text-charcoal block mt-0.5 font-mono">
+            <span className="technical-label block text-[8px]">LEVEL</span>
+            <span className="text-lg font-black block mt-0.5 font-mono dark:text-white">
               LV {levelInfo.level}
             </span>
           </div>
         </div>
       </div>
 
-      {/* 2. Stats Grid Blueprint */}
+      {/* 2. Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
         {/* Left pane: Operations and difficulty */}
         <div className="md:col-span-2 flex flex-col gap-6">
           
           {/* Operations accuracy */}
-          <div className="chunky-card p-5 md:p-6 bg-white border-charcoal shadow-glow-blue glass-reflection">
-            <div className="absolute top-1 left-2 text-[9px] font-mono text-neutral-300 font-extrabold select-none">[02]</div>
-            
+          <div className="chunky-card p-5 md:p-6">
             <h3 className="technical-label mb-4 block">
               // ACCURACY BY ARITHMETIC OPERATOR
             </h3>
 
             <div className="space-y-4 font-display">
               {[
-                { key: 'ADD', label: 'ADDITION (+)', color: 'bg-electric shadow-glow-blue' },
-                { key: 'SUBTRACT', label: 'SUBTRACTION (−)', color: 'bg-coral shadow-glow-coral' },
-                { key: 'MULTIPLY', label: 'MULTIPLICATION (×)', color: 'bg-rewards-yellow shadow-glow-yellow' },
-                { key: 'DIVIDE', label: 'DIVISION (÷)', color: 'bg-pro-purple shadow-glow-purple' },
+                { key: 'ADD', label: 'ADDITION (+)', color: 'bg-electric' },
+                { key: 'SUBTRACT', label: 'SUBTRACTION (−)', color: 'bg-coral' },
+                { key: 'MULTIPLY', label: 'MULTIPLICATION (×)', color: 'bg-rewards-yellow' },
+                { key: 'DIVIDE', label: 'DIVISION (÷)', color: 'bg-pro-purple' },
               ].map((op) => {
                 const answered = profile.stats.opAnswered[op.key as 'ADD' | 'SUBTRACT' | 'MULTIPLY' | 'DIVIDE'] || 0;
                 const correct = profile.stats.opCorrect[op.key as 'ADD' | 'SUBTRACT' | 'MULTIPLY' | 'DIVIDE'] || 0;
@@ -92,27 +81,19 @@ export const Profile: React.FC<ProfileProps> = () => {
                 
                 return (
                   <div key={op.key} className="space-y-1">
-                    <div className="flex justify-between text-xs font-black text-charcoal">
+                    <div className="flex justify-between text-xs font-bold text-charcoal dark:text-neutral-200">
                       <span>{op.label}</span>
-                      <span className="font-mono text-[11px] text-neutral-400">
-                        {correct} / {answered} <span className="text-charcoal font-black font-sans text-xs">({acc}%)</span>
+                      <span className="font-mono text-[10px] text-neutral-400">
+                        {correct} / {answered} <span className="text-charcoal dark:text-white font-bold font-sans text-xs">({acc}%)</span>
                       </span>
                     </div>
                     
-                    {/* Segmented bar indicator */}
-                    <div className="flex items-center border-[2px] border-charcoal bg-neutral-100 p-0.5 h-4 select-none">
-                      {Array.from({ length: 10 }).map((_, idx) => {
-                        const stepVal = idx * 10;
-                        const isFilled = acc > stepVal;
-                        return (
-                          <div
-                            key={idx}
-                            className={`h-full flex-1 border-r border-charcoal/20 last:border-0 transition-colors ${
-                              isFilled ? op.color : 'bg-transparent'
-                            }`}
-                          />
-                        );
-                      })}
+                    {/* Minimalist Linear Progress Bar */}
+                    <div className="w-full h-2 bg-neutral-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-300 ${op.color}`}
+                        style={{ width: `${acc}%` }}
+                      />
                     </div>
                   </div>
                 );
@@ -121,18 +102,16 @@ export const Profile: React.FC<ProfileProps> = () => {
           </div>
 
           {/* Difficulty yield logs */}
-          <div className="chunky-card p-5 md:p-6 bg-white border-charcoal shadow-glow-green glass-reflection">
-            <div className="absolute top-1 left-2 text-[9px] font-mono text-neutral-300 font-extrabold select-none">[03]</div>
-
+          <div className="chunky-card p-5 md:p-6">
             <h3 className="technical-label mb-4 block">
               // ACCURACY BY DIFFICULTY TIER
             </h3>
 
             <div className="space-y-4 font-display">
               {[
-                { key: 'BASIC', label: 'BASIC TIER', color: 'bg-lime shadow-glow-green' },
-                { key: 'STANDARD', label: 'STANDARD TIER', color: 'bg-electric shadow-glow-blue' },
-                { key: 'PRO', label: 'PRO ARCH-TIER', color: 'bg-pro-purple shadow-glow-purple' },
+                { key: 'BASIC', label: 'BASIC TIER', color: 'bg-lime' },
+                { key: 'STANDARD', label: 'STANDARD TIER', color: 'bg-electric' },
+                { key: 'PRO', label: 'PRO ARCH-TIER', color: 'bg-pro-purple' },
               ].map((diff) => {
                 const answered = profile.stats.diffAnswered[diff.key as 'BASIC' | 'STANDARD' | 'PRO'] || 0;
                 const correct = profile.stats.diffCorrect[diff.key as 'BASIC' | 'STANDARD' | 'PRO'] || 0;
@@ -140,27 +119,19 @@ export const Profile: React.FC<ProfileProps> = () => {
 
                 return (
                   <div key={diff.key} className="space-y-1">
-                    <div className="flex justify-between text-xs font-black text-charcoal">
+                    <div className="flex justify-between text-xs font-bold text-charcoal dark:text-neutral-200">
                       <span>{diff.label}</span>
-                      <span className="font-mono text-[11px] text-neutral-400">
-                        {correct} / {answered} <span className="text-charcoal font-black font-sans text-xs">({acc}%)</span>
+                      <span className="font-mono text-[10px] text-neutral-400">
+                        {correct} / {answered} <span className="text-charcoal dark:text-white font-bold font-sans text-xs">({acc}%)</span>
                       </span>
                     </div>
 
-                    {/* Segmented bar indicator */}
-                    <div className="flex items-center border-[2px] border-charcoal bg-neutral-100 p-0.5 h-4 select-none">
-                      {Array.from({ length: 10 }).map((_, idx) => {
-                        const stepVal = idx * 10;
-                        const isFilled = acc > stepVal;
-                        return (
-                          <div
-                            key={idx}
-                            className={`h-full flex-1 border-r border-charcoal/20 last:border-0 transition-colors ${
-                              isFilled ? diff.color : 'bg-transparent'
-                            }`}
-                          />
-                        );
-                      })}
+                    {/* Minimalist Linear Progress Bar */}
+                    <div className="w-full h-2 bg-neutral-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-300 ${diff.color}`}
+                        style={{ width: `${acc}%` }}
+                      />
                     </div>
                   </div>
                 );
@@ -174,32 +145,30 @@ export const Profile: React.FC<ProfileProps> = () => {
         <div className="flex flex-col gap-6">
 
           {/* Core metrics summary card */}
-          <div className="chunky-card p-5 bg-white border-charcoal shadow-glow-blue glass-reflection">
-            <div className="absolute top-1 left-2 text-[9px] font-mono text-neutral-300 font-extrabold select-none">[04]</div>
-
+          <div className="chunky-card p-5">
             <div className="space-y-3 font-display mt-2">
-              <div className="border-b border-charcoal/10 pb-2 flex justify-between items-center select-none">
+              <div className="border-b border-neutral-100 dark:border-neutral-800 pb-2 flex justify-between items-center select-none">
                 <span className="technical-label">// COMPLETED RUNS</span>
-                <span className="font-black text-charcoal font-mono text-sm">{profile.stats.totalGames} runs</span>
+                <span className="font-bold text-charcoal dark:text-neutral-200 font-mono text-sm">{profile.stats.totalGames} runs</span>
               </div>
-              <div className="border-b border-charcoal/10 pb-2 flex justify-between items-center select-none">
+              <div className="border-b border-neutral-100 dark:border-neutral-800 pb-2 flex justify-between items-center select-none">
                 <span className="technical-label">// MAX STREAK</span>
-                <span className="font-black text-charcoal font-mono text-sm flex items-center gap-1 glow-text-coral">
-                  <Flame className="w-3.5 h-3.5 text-red-500 fill-red-400" />
+                <span className="font-bold text-charcoal dark:text-neutral-200 font-mono text-sm flex items-center gap-1">
+                  <Flame className="w-4 h-4 text-coral fill-current" />
                   {profile.stats.bestStreak}
                 </span>
               </div>
-              <div className="border-b border-charcoal/10 pb-2 flex justify-between items-center select-none">
+              <div className="border-b border-neutral-100 dark:border-neutral-800 pb-2 flex justify-between items-center select-none">
                 <span className="technical-label">// ACCURACY</span>
-                <span className="font-black text-charcoal font-mono text-sm flex items-center gap-1 glow-text-green">
-                  <CheckCircle className="w-3.5 h-3.5 text-lime" />
+                <span className="font-bold text-charcoal dark:text-neutral-200 font-mono text-sm flex items-center gap-1">
+                  <CheckCircle className="w-4 h-4 text-lime" />
                   {overallAccuracy}%
                 </span>
               </div>
               <div className="pb-1 flex justify-between items-center select-none">
                 <span className="technical-label">// AVG RESPONSE</span>
-                <span className="font-black text-charcoal font-mono text-sm flex items-center gap-1 glow-text-blue">
-                  <Clock className="w-3.5 h-3.5 text-electric" />
+                <span className="font-bold text-charcoal dark:text-neutral-200 font-mono text-sm flex items-center gap-1">
+                  <Clock className="w-4 h-4 text-electric" />
                   {profile.stats.averageResponseTime}s
                 </span>
               </div>
@@ -207,11 +176,9 @@ export const Profile: React.FC<ProfileProps> = () => {
           </div>
 
           {/* High Scores per Mode */}
-          <div className="chunky-card p-5 bg-white border-charcoal shadow-glow-yellow glass-reflection">
-            <div className="absolute top-1 left-2 text-[9px] font-mono text-neutral-300 font-extrabold select-none">[05]</div>
-
+          <div className="chunky-card p-5">
             <h3 className="technical-label mb-3.5 block">
-              // HIGHEST COMPILATIONS
+              // HIGH SCORE COMPILATIONS
             </h3>
 
             <div className="space-y-3 font-display">
@@ -223,9 +190,9 @@ export const Profile: React.FC<ProfileProps> = () => {
                 { id: 'DAILY_CHALLENGE', label: 'DAILY RUN' },
                 { id: 'PUZZLE', label: 'PUZZLE' },
               ].map((mode) => (
-                <div key={mode.id} className="flex justify-between items-center text-xs font-mono font-bold text-charcoal border-b border-neutral-100 pb-2 last:border-0 last:pb-0 select-none">
+                <div key={mode.id} className="flex justify-between items-center text-xs font-mono font-bold text-charcoal dark:text-neutral-200 border-b border-neutral-100 dark:border-neutral-800 pb-2 last:border-0 last:pb-0 select-none">
                   <span>{mode.label}</span>
-                  <span className="text-electric font-black font-mono">{(profile.stats.bestScore[mode.id] || 0).toLocaleString()} pt</span>
+                  <span className="text-electric font-bold font-mono">{(profile.stats.bestScore[mode.id] || 0).toLocaleString()} pt</span>
                 </div>
               ))}
             </div>
@@ -235,13 +202,10 @@ export const Profile: React.FC<ProfileProps> = () => {
 
       </div>
 
-      {/* 3. Achievements cassette deck */}
-      <div className="chunky-card p-6 bg-white border-charcoal shadow-glow-purple glass-reflection">
-        <div className="absolute top-1 left-2 text-[9px] font-mono text-neutral-300 font-extrabold select-none">[06]</div>
-        <div className="absolute top-1 right-2 text-[9px] font-mono text-neutral-300 font-extrabold select-none">[ACH.DEC]</div>
-
+      {/* 3. Achievements grid */}
+      <div className="chunky-card p-6">
         <h3 className="technical-label mb-4 block">
-          // ACQUIRED AWARDS AND SYSTEM MEDALS
+          // SYSTEM AWARDS AND ACHIEVEMENTS
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -250,10 +214,10 @@ export const Profile: React.FC<ProfileProps> = () => {
             return (
               <div
                 key={ach.id}
-                className={`border-3 border-charcoal p-3.5 flex flex-col justify-between h-36 font-display relative transition-all duration-100 hover-wiggle ${
+                className={`border p-3.5 flex flex-col justify-between h-36 font-display relative rounded-xl transition-all duration-200 ${
                   isUnlocked 
-                    ? 'bg-amber-50 shadow-glow-yellow border-charcoal' 
-                    : 'bg-neutral-50/50 opacity-40 border-dashed shadow-[1px_1px_0px_0px_#1C1A17] border-charcoal/40'
+                    ? 'bg-amber-50/50 dark:bg-amber-950/10 border-amber-200 dark:border-amber-900/40 text-charcoal dark:text-neutral-200' 
+                    : 'bg-neutral-50/30 dark:bg-neutral-900/30 opacity-40 border-dashed border-neutral-200 dark:border-neutral-800'
                 }`}
               >
                 {/* Padlock Icon */}
@@ -265,15 +229,15 @@ export const Profile: React.FC<ProfileProps> = () => {
                   )}
                 </div>
 
-                <div className="w-8 h-8 rounded-full border-2 border-charcoal flex items-center justify-center font-bold text-xs bg-white shadow-[1.5px_1.5px_0px_0px_#1C1A17] select-none">
+                <div className="w-8 h-8 rounded-full border border-neutral-200 dark:border-neutral-700 flex items-center justify-center font-bold text-xs bg-white dark:bg-zinc-800 select-none">
                   {isUnlocked ? '★' : '☆'}
                 </div>
 
                 <div className="text-left select-none">
-                  <div className={`text-xs font-black tracking-tight ${isUnlocked ? 'text-charcoal' : 'text-neutral-500'}`}>
+                  <div className={`text-xs font-bold tracking-tight ${isUnlocked ? 'text-charcoal dark:text-neutral-100' : 'text-neutral-400'}`}>
                     {ach.title}
                   </div>
-                  <div className="text-[9px] text-neutral-500 font-sans font-semibold leading-tight mt-1">
+                  <div className="text-[9.5px] text-neutral-400 dark:text-neutral-500 font-sans font-medium leading-tight mt-1">
                     {ach.description}
                   </div>
                 </div>

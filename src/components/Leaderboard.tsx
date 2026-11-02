@@ -8,44 +8,38 @@ export const Leaderboard: React.FC = () => {
   return (
     <div className="max-w-2xl mx-auto flex flex-col gap-6 select-none text-left relative">
       
-      {/* Decorative Technical Top Rule */}
-      <div className="blueprint-line-h pb-2 mb-1 font-mono text-[9px] text-neutral-400 font-bold flex justify-between select-none">
-        <span>QM // GLOBAL_LADDER_REGISTRY</span>
-        <span>INDEX: LD-EVENT-09</span>
-      </div>
-
       <div className="text-center font-display mb-2 select-none">
         <span className="technical-label block mb-1">
           // COMPETITIVE CHALLENGE ARCHIVES
         </span>
-        <h1 className="text-4xl md:text-5xl font-black tracking-tight text-charcoal flex items-center justify-center gap-2">
-          <Trophy className="w-10 h-10 text-rewards-yellow fill-rewards-yellow stroke-[1.5] glow-text-yellow animate-bounce" />
-          DAILY <span className="text-electric glow-text-blue">RANKING</span>
+        <h1 className="text-4xl md:text-5xl font-black tracking-tight text-charcoal dark:text-white flex items-center justify-center gap-2">
+          <Trophy className="w-8 h-8 text-rewards-yellow fill-rewards-yellow stroke-[1.5]" />
+          DAILY <span className="text-electric">RANKING</span>
         </h1>
-        <p className="text-xs text-neutral-500 font-sans mt-2 max-w-md mx-auto font-semibold">
+        <p className="text-xs text-neutral-500 dark:text-neutral-400 font-sans mt-2 max-w-md mx-auto font-medium">
           Rankings are calculated dynamically based on correct equation rates, elapsed seconds, and speed multipliers.
         </p>
       </div>
 
       {/* Main Leaderboard Panel */}
-      <div className="chunky-card p-5 md:p-6 bg-white border-charcoal shadow-maximal-yellow glass-reflection">
+      <div className="chunky-card p-5 md:p-6">
         
         {/* Banner with challenge state */}
-        <div className="flex items-center justify-between border-b-2 border-dashed border-charcoal/15 pb-4 mb-2">
+        <div className="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-800 pb-4 mb-4">
           <div>
             <span className="technical-label">TARGET LOG EVENT</span>
-            <span className="text-sm font-black text-charcoal font-display block mt-1">
+            <span className="text-sm font-bold text-charcoal dark:text-neutral-200 font-display block mt-1">
               DAILY RUN // {new Date().toISOString().split('T')[0].replace(/-/g, '.')}
             </span>
           </div>
           
           <div className="text-right">
             {!hasPlayedDailyToday ? (
-              <span className="text-[9px] font-mono font-black text-coral bg-red-50 border-[2px] border-coral/30 px-2 py-0.5 animate-pulse uppercase shadow-[0_0_10px_rgba(239,68,68,0.25)]">
+              <span className="text-[9px] font-mono font-bold text-coral bg-coral/5 border border-coral/20 px-2 py-0.5 rounded">
                 UNSOLVED BY YOU
               </span>
             ) : (
-              <span className="text-[9px] font-mono font-black text-lime bg-lime/10 border-[2px] border-lime/30 px-2.5 py-0.5 uppercase shadow-[0_0_10px_rgba(132,204,22,0.25)]">
+              <span className="text-[9px] font-mono font-bold text-lime bg-lime/5 border border-lime/20 px-2.5 py-0.5 rounded">
                 RUN COMPLETED
               </span>
             )}
@@ -55,49 +49,49 @@ export const Leaderboard: React.FC = () => {
         {/* Leaderboard Rankings List */}
         <div className="flex flex-col gap-3">
           {dailyLeaderboard.length === 0 ? (
-            <div className="text-center py-10 font-display text-xs text-neutral-400 font-bold">
+            <div className="text-center py-10 font-display text-xs text-neutral-400 font-semibold">
               // NO SCORES RECORDED FOR TODAY YET.
             </div>
           ) : (
             dailyLeaderboard.map((entry) => {
               const isCurrentUser = entry.isUser;
               
-              // Custom rank colors and glows
-              let rankStyle = 'bg-neutral-100 text-charcoal border-charcoal';
+              // Custom rank colors
+              let rankStyle = 'bg-neutral-100 dark:bg-zinc-800 text-neutral-600 dark:text-neutral-300 border-neutral-200 dark:border-neutral-700';
               let ledType = 'led-off';
               if (entry.rank === 1) {
-                rankStyle = 'bg-rewards-yellow text-charcoal border-charcoal font-black text-sm shadow-glow-yellow';
+                rankStyle = 'bg-rewards-yellow/15 text-rewards-yellow border-rewards-yellow/30 font-bold';
                 ledType = 'led-active-green';
               } else if (entry.rank === 2) {
-                rankStyle = 'bg-neutral-200 text-charcoal border-charcoal font-black text-sm shadow-glow-blue';
+                rankStyle = 'bg-blue-50 dark:bg-blue-900/10 text-blue-500 border-blue-200 dark:border-blue-900/30 font-bold';
                 ledType = 'led-active-blue';
               } else if (entry.rank === 3) {
-                rankStyle = 'bg-amber-100 text-charcoal border-charcoal font-black text-sm shadow-glow-purple';
+                rankStyle = 'bg-purple-50 dark:bg-purple-900/10 text-purple-500 border-purple-200 dark:border-purple-900/30 font-bold';
                 ledType = 'led-active-purple';
               }
 
               return (
                 <div
                   key={`${entry.username}-${entry.rank}`}
-                  className={`border-[3px] border-charcoal p-3 flex items-center justify-between font-display relative transition-all duration-100 hover-wiggle ${
+                  className={`border p-3 flex items-center justify-between font-display relative rounded-xl transition-all duration-150 ${
                     isCurrentUser 
-                      ? 'bg-electric/5 border-electric shadow-glow-blue translate-x-1' 
-                      : 'bg-white shadow-[3px_3px_0px_0px_rgba(28,26,23,1)] hover:bg-neutral-50/50 hover:shadow-glow-blue'
+                      ? 'bg-electric/5 dark:bg-electric/10 border-electric text-charcoal dark:text-neutral-100' 
+                      : 'bg-white dark:bg-zinc-900 border-neutral-100 dark:border-neutral-800/80 hover:bg-neutral-50/50 dark:hover:bg-zinc-800/50 text-charcoal dark:text-neutral-200'
                   }`}
                 >
                   <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
                     
                     {/* Rank Circle */}
-                    <div className={`w-8 h-8 rounded-full border-2 border-charcoal flex items-center justify-center font-mono ${rankStyle} shrink-0 select-none`}>
+                    <div className={`w-8 h-8 rounded-full border flex items-center justify-center font-mono text-xs ${rankStyle} shrink-0 select-none`}>
                       {entry.rank}
                     </div>
 
                     {/* Name */}
-                    <div className="text-left font-display font-black text-sm text-charcoal truncate flex items-center gap-2 flex-1 min-w-0">
+                    <div className="text-left font-display font-extrabold text-sm text-charcoal dark:text-neutral-200 truncate flex items-center gap-2 flex-1 min-w-0">
                       {ledType !== 'led-off' && <span className={`led ${ledType}`} />}
                       <span className="truncate">{entry.username}</span>
                       {isCurrentUser && (
-                        <span className="bg-electric text-white text-[8px] font-mono px-1.5 py-[1px] uppercase leading-none font-bold shrink-0 shadow-[0_0_6px_#2563EB]">
+                        <span className="bg-electric text-white text-[8px] font-mono px-1.5 py-0.5 rounded leading-none font-bold shrink-0">
                           YOU
                         </span>
                       )}
@@ -110,7 +104,7 @@ export const Leaderboard: React.FC = () => {
                     {/* Accuracy Column */}
                     <div className="hidden sm:block">
                       <span className="technical-label text-[7px] text-right block mb-0.5">ACCURACY</span>
-                      <span className="font-bold text-charcoal flex items-center justify-end gap-1 font-sans text-xs glow-text-green">
+                      <span className="font-bold text-neutral-600 dark:text-neutral-300 flex items-center justify-end gap-1 font-sans text-xs">
                         <CheckCircle className="w-3 h-3 text-lime" />
                         {entry.accuracy}%
                       </span>
@@ -119,7 +113,7 @@ export const Leaderboard: React.FC = () => {
                     {/* Avg Time Column */}
                     <div className="hidden sm:block">
                       <span className="technical-label text-[7px] text-right block mb-0.5">SPEED</span>
-                      <span className="font-bold text-charcoal flex items-center justify-end gap-1 font-sans text-xs glow-text-blue">
+                      <span className="font-bold text-neutral-600 dark:text-neutral-300 flex items-center justify-end gap-1 font-sans text-xs">
                         <Clock className="w-3.5 h-3.5 text-neutral-400" />
                         {entry.time}
                       </span>
@@ -127,8 +121,8 @@ export const Leaderboard: React.FC = () => {
 
                     {/* Total Score */}
                     <div>
-                      <span className="technical-label text-[7px] text-right block mb-0.5">COMPUTED SCORE</span>
-                      <span className="font-black text-sm text-charcoal tracking-tight font-mono block glow-text-blue">
+                      <span className="technical-label text-[7px] text-right block mb-0.5">SCORE</span>
+                      <span className="font-bold text-sm text-charcoal dark:text-white tracking-tight font-mono block">
                         {entry.score.toLocaleString()} pt
                       </span>
                     </div>

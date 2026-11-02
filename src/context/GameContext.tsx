@@ -26,6 +26,7 @@ export interface UserProfile {
   totalXP: number;
   unlockedAchievements: string[]; // unlocked achievement IDs
   stats: UserStats;
+  scoreHistory?: number[];
 }
 
 export interface LeaderboardEntry {
@@ -84,6 +85,7 @@ const INITIAL_PROFILE: UserProfile = {
   totalXP: 0,
   unlockedAchievements: [],
   stats: INITIAL_STATS,
+  scoreHistory: [400, 700, 550, 900, 800, 1100, 950, 1240],
 };
 
 const GameContext = createContext<GameContextProps | undefined>(undefined);
@@ -287,10 +289,14 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       newBestScore[runData.mode] = runData.score;
     }
 
+    const currentHistory = profile.scoreHistory || [400, 700, 550, 900, 800, 1100, 950, 1240];
+    const updatedHistory = [...currentHistory, runData.score];
+
     const updatedProfile: UserProfile = {
       ...profile,
       totalXP: newXP,
       unlockedAchievements: updatedAchievements,
+      scoreHistory: updatedHistory,
       stats: {
         totalGames: newTotalGames,
         totalScore: newTotalScore,

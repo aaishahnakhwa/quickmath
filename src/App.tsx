@@ -6,10 +6,11 @@ import { GameArena } from './components/GameArena';
 import { Results } from './components/Results';
 import { Profile } from './components/Profile';
 import { Leaderboard } from './components/Leaderboard';
+import { HowToPlay } from './components/HowToPlay';
 import { setGlobalVolume } from './services/audioService';
 
 function GameApp() {
-  const [screen, setScreen] = useState<'home' | 'play' | 'results' | 'profile' | 'leaderboard'>('home');
+  const [screen, setScreen] = useState<'home' | 'play' | 'results' | 'profile' | 'leaderboard' | 'how-to-play'>('home');
   const [gameConfig, setGameConfig] = useState<{
     difficulty: 'BASIC' | 'STANDARD' | 'PRO';
     operations: ('ADD' | 'SUBTRACT' | 'MULTIPLY' | 'DIVIDE')[];
@@ -20,8 +21,7 @@ function GameApp() {
   const [runResults, setRunResults] = useState<any>(null);
   const [saveResponse, setSaveResponse] = useState<any>(null);
   
-  // Custom Arcade Hardware Console Options
-  const [activeTheme, setActiveTheme] = useState<'classic' | 'danger' | 'gameboy' | 'synthwave'>('classic');
+  // Custom Console Options
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(0.3); // 0 = Mute, 0.3 = Low, 1.0 = High
   
@@ -36,7 +36,7 @@ function GameApp() {
     setGameConfig(config);
     setRunResults(null);
     setSaveResponse(null);
-    setScreen('play');
+    setScreen('play'); // Go directly to GameArena which manages Level Info screen
   };
 
   const handleGameEnd = (results: any) => {
@@ -60,8 +60,6 @@ function GameApp() {
     <Layout
       currentScreen={screen}
       setScreen={setScreen}
-      activeTheme={activeTheme}
-      setActiveTheme={setActiveTheme}
       isDarkMode={isDarkMode}
       setIsDarkMode={setIsDarkMode}
       volume={volume}
@@ -90,6 +88,9 @@ function GameApp() {
       )}
       {screen === 'leaderboard' && (
         <Leaderboard />
+      )}
+      {screen === 'how-to-play' && (
+        <HowToPlay onBack={() => setScreen('home')} />
       )}
     </Layout>
   );
